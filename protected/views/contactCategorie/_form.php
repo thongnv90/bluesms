@@ -12,6 +12,7 @@ $datacontact = Contact::model()->getDataJson();
                 <?php echo CHtml::textField('category_name','',array('size'=>60,'maxlength'=>255)); ?>
         </div>
         <div class="form-group">
+            <form method="post" enctype="multipart/form-data"  action="upload.php">
                 <?php echo CHtml::label('Nhập liên hệ từ excel', 'contact_excel'); ?>
                 <?php echo CHtml::fileField('contact_excel','',array('size'=>60,'maxlength'=>255,'type'=>'file')); ?>
                 <?php
@@ -22,13 +23,10 @@ $datacontact = Contact::model()->getDataJson();
                                 'encodeLabel'=>false,
                                 'buttonType'=>'button',
                                 'icon' => 'icon-arrow-up',
-                                'ajaxOptions' => array(
-                                     'success' => '...',
-                                     'error' => '...',
-                                     'beforeSend' => '...',
-                                 )
+                                'htmlOptions'=> array('onclick' => 'ImportDataExcel();return false;')
                     ));
                 ?>
+            </form>
                 <?php
                     $this->widget('bootstrap.widgets.TbButton',array(
                                 'label'=>'Tải file mẫu',
@@ -36,12 +34,8 @@ $datacontact = Contact::model()->getDataJson();
                                 'size'=>'normal',
                                 'encodeLabel'=>false,
                                 'icon'=>'icon-arrow-down',
-                                'buttonType'=>'button',
-                                'ajaxOptions' => array(
-                                     'success' => '...',
-                                     'error' => '...',
-                                     'beforeSend' => '...',
-                                 )
+                                'buttonType'=>'link',
+                                'url'=>$this->createUrl('DownloadTemplate')
                     ));
                 ?>
         </div>
@@ -122,4 +116,13 @@ $datacontact = Contact::model()->getDataJson();
               ]
             };
             var hot = new Handsontable(contact_data, settings1);
+            
+    function ImportDataExcel()
+    {
+        $('#contact_excel').val();
+        $.ajax({
+            'type'=>'POST',
+            'url'=>'<?php $this->createUrl($route) ?>'
+        });
+    }
 </script>

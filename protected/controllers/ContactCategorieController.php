@@ -27,12 +27,8 @@ class ContactCategorieController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
-				'users'=>array('*'),
-			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array('create','update','DownloadTemplate','index','view'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -170,4 +166,87 @@ class ContactCategorieController extends Controller
 			Yii::app()->end();
 		}
 	}
+        
+        public function actionDownloadTemplate()
+        {
+            $file=Yii::getPathOfAlias('webroot').'/template/contact.xls';
+            if(file_exists($file)){
+
+                header("Content-Length: " . filesize ( $file ) ); 
+                header("Content-type: application/octet-stream"); 
+                header("Content-disposition: attachment; filename=".basename($file));
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                ob_clean();
+                flush();
+
+                readfile($file);
+            }
+            else
+            {
+                echo 'The file "contact.xls" does not exist';
+            }
+        }
+        
+        public function actionImportDataExel(){
+            if( $_FILES['file']['tmp_name'])
+
+            {
+
+                $dom = DOMDocument::load( $_FILES['file']['tmp_name'] );
+
+                $rows = $dom->getElementsByTagName('Row');
+
+                $first_row = true;
+
+                foreach ($rows as $row)
+
+                {
+
+                if( !$first_row)
+
+                {
+
+                $tieude = "";
+
+                $tacgia = "";
+
+                $gia = "";
+
+                $index = 1;
+
+                $cells = $row->getElementsByTagName( 'Cell' );
+
+                foreach( $cells as $cell )
+
+                {
+
+                $ind = $cell->getAttribute( 'Index' );
+
+                if ( $ind != null ) $index = $ind;
+
+                if ( $index == 1 ) $tieude = $cell->nodeValue;
+
+                if ( $index == 2 ) $tacgia = $cell->nodeValue;
+
+                if ( $index == 3 ) $gia = $cell->nodeValue;
+
+                $index += 1;
+
+                }
+
+                add_person( $tieude, $tacgia, $gia);
+
+                }
+
+                $first_row = false;
+
+                }
+
+            }
+
+            echo '<pre>';
+            print_r($arraydata);
+            echo '</pre>';
+        }
 }
